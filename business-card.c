@@ -43,8 +43,8 @@ void main()\n\
 }\n\
 ";
 
-const size_t FLOATS_PER_STAR_VERTEX = 5;
-const size_t FLOATS_PER_STAR = FLOATS_PER_STAR_VERTEX * ((sizeof(squarePoints) / sizeof(squarePoints[0])) / 2);
+#define FLOATS_PER_STAR_VERTEX 5
+#define FLOATS_PER_STAR (FLOATS_PER_STAR_VERTEX * ((sizeof(squarePoints) / sizeof(squarePoints[0])) / 2))
 
 const char *witchVertexShaderSource = "\
 #version 150\n\
@@ -261,6 +261,7 @@ int main(void) {
 	GLint starCenterAttribute;
 	GLint starProximityAttribute;
 	GLfloat *starVertexData;
+	size_t i;
 	size_t starCount = (size_t)(sqrt(width * height) * 4);
 	GLuint starVertexArray;
 	GLuint starVertexBuffer;
@@ -336,6 +337,7 @@ int main(void) {
 		SDL_WINDOW_OPENGL
 	);
 	if (window == NULL) {
+		fprintf(stderr, "Couldn't make window: %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -349,6 +351,7 @@ int main(void) {
 
 	context = SDL_GL_CreateContext(window);
 	if (context == NULL) {
+		fprintf(stderr, "Couldn't initialise OpenGL: %s\n", SDL_GetError());
 		return -1;
 	}
 
@@ -423,11 +426,12 @@ int main(void) {
 	starProximityAttribute = glGetAttribLocation(starShaderProgram, "starProximity");
 
 	starVertexData = malloc(sizeof(GLfloat) * FLOATS_PER_STAR * starCount);
-	for (size_t i = 0; i < starCount; i++) {
+	for (i = 0; i < starCount; i++) {
 		GLfloat x = frand() * 2 - 1;
 		GLfloat y = frand() * 2 - 1;
 		GLfloat proximity = pow(frand(), 4);
-		for (size_t j = 0; j < sizeof(squarePoints)/sizeof(squarePoints[0]); j += 2) {
+		size_t j;
+		for (j = 0; j < sizeof(squarePoints)/sizeof(squarePoints[0]); j += 2) {
 			GLfloat vertex[] = {
 				squarePoints[j],
 				squarePoints[j + 1],
@@ -496,7 +500,7 @@ int main(void) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, witchWidth, witchHeight, 0, GL_RED, GL_UNSIGNED_BYTE, witchPixelData);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-	// non-power-of-two texture dimensions
+	/* non-power-of-two texture dimensions */
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
@@ -553,7 +557,7 @@ int main(void) {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, textWidth, textHeight, 0, GL_RED, GL_UNSIGNED_BYTE, textPixelData);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	// non-power-of-two texture dimensions
+	/* non-power-of-two texture dimensions */
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 
